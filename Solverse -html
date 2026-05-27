@@ -1,0 +1,199 @@
+<!DOCTYPE html><html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Solar System Universe Animation</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }body {
+  overflow: hidden;
+  background: radial-gradient(circle at center, #050816 0%, #000000 100%);
+  font-family: Arial, sans-serif;
+}
+
+canvas {
+  display: block;
+}
+
+.title {
+  position: absolute;
+  top: 20px;
+  width: 100%;
+  text-align: center;
+  color: white;
+  font-size: 2rem;
+  letter-spacing: 4px;
+  text-shadow: 0 0 15px #ffffff;
+  z-index: 10;
+}
+
+  </style>
+</head>
+<body>
+  <div class="title">SOLAR SYSTEM IN THE UNIVERSE</div>
+  <canvas id="space"></canvas>  <script>
+    const canvas = document.getElementById('space');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    const centerX = canvas.width / 2;
+    const centerY = canvas.height / 2;
+
+    window.addEventListener('resize', () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    });
+
+    // Stars background
+    const stars = [];
+
+    for (let i = 0; i < 400; i++) {
+      stars.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        radius: Math.random() * 2,
+        alpha: Math.random()
+      });
+    }
+
+    function drawStars() {
+      for (const star of stars) {
+        ctx.beginPath();
+        ctx.arc(star.x, star.y, star.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(255,255,255,${star.alpha})`;
+        ctx.fill();
+      }
+    }
+
+    class Planet {
+      constructor(name, color, radius, orbitRadius, speed, size) {
+        this.name = name;
+        this.color = color;
+        this.radius = radius;
+        this.orbitRadius = orbitRadius;
+        this.speed = speed;
+        this.size = size;
+        this.angle = Math.random() * Math.PI * 2;
+      }
+
+      update() {
+        this.angle += this.speed;
+      }
+
+      draw() {
+        const x = centerX + Math.cos(this.angle) * this.orbitRadius;
+        const y = centerY + Math.sin(this.angle) * this.orbitRadius;
+
+        // Orbit path
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, this.orbitRadius, 0, Math.PI * 2);
+        ctx.strokeStyle = 'rgba(255,255,255,0.08)';
+        ctx.lineWidth = 1;
+        ctx.stroke();
+
+        // Planet glow
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = this.color;
+
+        // Planet
+        ctx.beginPath();
+        ctx.arc(x, y, this.size, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+
+        ctx.shadowBlur = 0;
+
+        // Planet name
+        ctx.fillStyle = 'white';
+        ctx.font = '12px Arial';
+        ctx.fillText(this.name, x + 10, y);
+      }
+    }
+
+    const planets = [
+      new Planet('Mercury', '#b1b1b1', 4, 70, 0.02, 4),
+      new Planet('Venus', '#d9a066', 6, 100, 0.015, 6),
+      new Planet('Earth', '#4da6ff', 7, 140, 0.01, 7),
+      new Planet('Mars', '#ff5733', 5, 180, 0.008, 5),
+      new Planet('Jupiter', '#d2b48c', 12, 240, 0.006, 12),
+      new Planet('Saturn', '#f5deb3', 10, 300, 0.005, 10),
+      new Planet('Uranus', '#7fffd4', 9, 360, 0.0035, 9),
+      new Planet('Neptune', '#4169e1', 9, 420, 0.0025, 9)
+    ];
+
+    function drawSun() {
+      const gradient = ctx.createRadialGradient(
+        centerX,
+        centerY,
+        10,
+        centerX,
+        centerY,
+        60
+      );
+
+      gradient.addColorStop(0, '#fff176');
+      gradient.addColorStop(0.4, '#ffca28');
+      gradient.addColorStop(1, '#ff6f00');
+
+      ctx.shadowBlur = 50;
+      ctx.shadowColor = '#ffca28';
+
+      ctx.beginPath();
+      ctx.arc(centerX, centerY, 45, 0, Math.PI * 2);
+      ctx.fillStyle = gradient;
+      ctx.fill();
+
+      ctx.shadowBlur = 0;
+    }
+
+    // Galaxy particles
+    const galaxies = [];
+
+    for (let i = 0; i < 40; i++) {
+      galaxies.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        size: Math.random() * 3 + 1,
+        speed: Math.random() * 0.3 + 0.1
+      });
+    }
+
+    function drawGalaxyParticles() {
+      for (const g of galaxies) {
+        ctx.beginPath();
+        ctx.arc(g.x, g.y, g.size, 0, Math.PI * 2);
+        ctx.fillStyle = 'rgba(173,216,230,0.7)';
+        ctx.fill();
+
+        g.y += g.speed;
+
+        if (g.y > canvas.height) {
+          g.y = -10;
+          g.x = Math.random() * canvas.width;
+        }
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      drawStars();
+      drawGalaxyParticles();
+      drawSun();
+
+      for (const planet of planets) {
+        planet.update();
+        planet.draw();
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    animate();
+  </script></body>
+</html>
